@@ -1,0 +1,42 @@
+from rest_framework.views import APIView # Recebe a requests
+from rest_framework.response import Response # Envia a requisição
+from rest_framework import status #Vamos preparar uma resposta para devolver para o usuário
+
+from .models import Curso, Avaliacao
+from .serializers import CursoSerializers, AvaliacaoSerializers
+
+
+#Metodo GET da API das classes setadas nos models.
+class CursoAPIView(APIView):
+    """
+    API de Cursos 
+    """
+    def get(elf, request): #Temos que passar pq é o cabeçalho da nossa aplicação
+        cursos = Curso.objects.all() #Uma consulta para retornar todos os objetos setados no models da classe curso
+        serializer = CursoSerializers(cursos, many=True) #O parametro many passa todos os cursos que serão cadastrados, fosse somente um "False"
+        return Response(serializer.data) #Parametro retorna os dados dos models "serializer.data"
+        # Caso queira passa outra informação no lugar de todas usar: ({"id": serializer.data['id'], "curso": serializer.data['titulo']})
+
+    def post(self, request):
+        serializer = CursoSerializers(data=request.data) #Eviaremos os dados com o parametro 'data'
+        serializer.is_valid(raise_exception=True) #Verificando se os dados são validos, se não forem não passa. Parametro 'raise_exception=True'
+        serializer.save() #Salvando os dados
+        return Response(serializer.data, status=status.HTTP_201_CREATED) #Retornando os dados com o verbo http 201 create
+
+
+class AvaliacaoAPIView(APIView):
+    """
+    API de Avaliações
+    """
+    def get(elf, request):
+        avaliacoes = Avaliacao.objects.all() #Uma consulta para retornar todos os objetos setados no models da classe Avaliação
+        serializer = AvaliacaoSerializers(avaliacoes, many=True) #O parametro many passa todos os cursos que serão cadastrados, fosse somente um "False"
+        return Response(serializer.data) 
+
+    def post(self, request):
+        serializer = AvaliacaoSerializers(data=request.data) #Eviaremos os dados com o parametro 'data'
+        serializer.is_valid(raise_exception=True) #Verificando se os dados são validos, se não forem não passa. Parametro 'raise_exception=True'
+        serializer.save() #Salvando os dados
+        return Response(serializer.data, status=status.HTTP_201_CREATED) #Retornando os dados com o verbo http 201 create
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
